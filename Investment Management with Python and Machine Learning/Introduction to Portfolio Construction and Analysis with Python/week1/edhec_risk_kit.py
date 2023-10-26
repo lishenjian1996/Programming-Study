@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def drawdown(return_series: pd.Series):
     """
@@ -39,6 +40,14 @@ def get_hfi_returns():
     hfi.index=hfi.index.to_period('M')
     return hfi
 
+def semideviation(r):
+    """
+    Returns the semideviation aka negative semideviation of r
+    r must be a Series or a DataFrame
+    """
+    is_negative=r<0
+    return r[is_negative].std(ddof=0)
+
 def skewness(r):
     """
     Alternative to scipy.stats.skew()
@@ -75,3 +84,55 @@ def is_normal(r, level=0.01):
     statistic, p_value=scipy.stats.jarque_bera(r)
     #result=scipy.stats.jarque_bera(r)
     return p_value>level
+
+# Have a nice label for above VaR computing
+def var_historic(r, level=5):
+    """
+    Var Historic
+    """
+    if isinstance(r, pd.DataFrame):
+        return r.aggregate(var_historic, level=level)
+    elif isinstance(r,pd.Series):
+        return -np.percentile(r,level)
+    else:
+        raise TypeError('Expected r to be Series or DataFrame')
+
+from scipy.stats import norm
+
+#def var_gaussian(r,level=5):
+#    """
+#    Returns the Parametric Gaussian VaR of a Series or DataFrame
+#    """
+#    #Compute the Z score assuming it was Gaussian
+#    z=norm.ppf(level/100)
+#    return -(r.mean()+z*r.std(ddof=0))
+
+def var_gaussian(r,level=5, modified=False):
+    """
+    Returns the Parametric Gaussian VaR of a Series or DataFrame
+    If "mofified" is True, then the modified VaR is returned,
+    using the Cornish-Fisher modification
+    """
+    #Compute the Z score assuming it was Gaussian
+    z= norm.ppf(level/100)
+    if modified:
+        # modify the Z score based on observed skewness and kurtosis
+        s=skewness(r)
+        k=kurtosis(r)
+        z=(z+
+       (z**2-1)*s/6+
+       (z**3-3*z)*(k-3)/24-
+       (2*z**3-5*z)*(s**2)/36)
+    return -(r.mean()+z*r.std(ddof=0))
+
+def cvar_historic(r, level=5):
+    """
+    Compute the Conditional VaR of Series or DataFrame
+    """
+    if isinstance(r, pd.Series):
+        is_beyond=r<= -var_historic(r, level=level)
+        return -r[is_beyond].mean()
+    elif isinstance(r,pd.DataFrame):
+        return r.aggregate(cvar_historic, level=level)
+    else:
+        raise TypeError('Expected r to be Series or DataFrame')
