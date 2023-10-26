@@ -136,3 +136,4 @@ def cvar_historic(r, level=5):
         return r.aggregate(cvar_historic, level=level)
     else:
         raise TypeError('Expected r to be Series or DataFrame')
+    
