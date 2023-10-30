@@ -41,6 +41,24 @@ def get_hfi_returns():
     hfi.index=hfi.index.to_period('M')
     return hfi
 
+def get_ind_nfirms():
+    """
+    Load and format the Ken French 30 Industry Portfolios Average number of Firms
+    """
+    ind = pd.read_csv("ind30_m_nfirms.csv", header=0, index_col=0)
+    ind.index = pd.to_datetime(ind.index, format="%Y%m").to_period('M')
+    ind.columns = ind.columns.str.strip()
+    return ind
+
+def get_ind_size():
+    """
+    Load and format the Ken French 30 Industry Portfolios Average size (market cap)
+    """
+    ind = pd.read_csv("ind30_m_size.csv", header=0, index_col=0)
+    ind.index = pd.to_datetime(ind.index, format="%Y%m").to_period('M')
+    ind.columns = ind.columns.str.strip()
+    return ind
+
 def get_ind_returns():
     """
     Load and format the Ken French 30 Industry Portfolios Value Weighted Monthly Returns
