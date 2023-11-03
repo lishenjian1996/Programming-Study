@@ -458,9 +458,9 @@ def gbm(n_years = 10, n_scenarios=1000, mu=0.07, sigma=0.15, steps_per_year=12, 
 
 def funding_ratio(assets, liabilities, r):
     """
-    Computes the findina ratio of some assets given liabilities and interest rate
+    Computes the funding ratio of a series of liabilities, based on an interest rate and current value of assets
     """
-    return assets/pv(liabilities, r)
+    return pv(assets, r)/pv(liabilities, r)
 
 
 def pv(l,r):
@@ -563,18 +563,6 @@ def cir(n_years = 10, n_scenarios=1, a=0.05, b=0.03, sigma=0.05, steps_per_year=
     ###
     return rates, prices
 
-
-def show_cir_prices(r_0=0.03, a=0.5, b=0.03, sigma=0.05, n_scenarios=5):
-    cir(r_0=r_0, a=a, b=b, sigma=sigma, n_scenarios=n_scenarios)[1].plot(legend=False, figsize=(12,5))
-
-controls = widgets.interactive(show_cir_prices,
-                              r_0 = (0, .15, .01),
-                              a = (0, 1, .1),
-                               b = (0, .15, .01),
-                               sigma= (0, .1, .01),
-                               n_scenarios = (1, 100))
-display(controls)
-
 # as interest rate go up, the price of bond down
 # as interest rate go down, the price of bond up
 
@@ -609,3 +597,13 @@ def macaulay_duration(flows, discount_rate):
     discount_flows=discount(flows.index, discount_rate)*flows
     weights=discount_flows/discount_flows.sum()
     return np.average(flows.index, weights=weights)
+
+def match_durations(cf_t, cf_s, cf_l, discount_rate):
+    """
+    Returns the weight W in cf_s that, along with (1-W) in cf_l will have an effective
+    duration that matches cf_t
+    """
+    d_t=macaulay_duration(cf_t, discount_rate)
+    d_s=macaulay_duration(cf_s, discount_rate)
+    d_l=macaulay_duration(cf_l, discount_rate)
+    return (d_l - d_t)/(d_l - d_s)
