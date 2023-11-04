@@ -463,27 +463,34 @@ def funding_ratio(assets, liabilities, r):
     return pv(assets, r)/pv(liabilities, r)
 
 
-def pv(l,r):
+def pv(flows,r):
     """
     Computes the present value of a sequence of liabilities
     l is indexed by the time, and the values are the amounts of each liability
     returns the present value of the sequence
     """
-    dates= l.index
+    dates= flows.index
     discounts=discount(dates,r)
-    return (discounts*l).sum()
+    return discounts.multiply(flows, axis='rows').sum()
 
 
-def discount(t,r):
+def discount(t, r):
     """
-    Compute the price of a pure discount bond that pays a dollar at time t, given interest rate r
+    Compute the price of a pure discount bond that pays a dollar at time period t
+    and r is the per-period interest rate
+    returns a |t| x |r| Series or DataFrame
+    r can be a float, Series or DataFrame
+    returns a DataFrame indexed by t
     """
-    return 1/(1+r)**t #or (1+t)**(-t)
+    discounts = pd.DataFrame([(r+1)**-i for i in t])
+    discounts.index = t
+    return discounts
 
 
 import numpy as np
 import pandas as pd
 import edhec_risk_kit as erk
+import math
 
 def inst_to_ann(r):
     """
@@ -497,31 +504,6 @@ def ann_to_inst(r):
     """
     return np.log1p(r) # equally with np.log(1+r)
 
-def cir(n_years = 10, n_scenarios=1, a=0.05, b=0.03, sigma=0.05, steps_per_year=12, r_0=None):
-    """
-    Implements the CIR model for interest rates
-    Generate random interest rate evolution over time using the CIR model
-    b and r_0 are assumed to be the annualized rates, not the short rate
-    and the returned values are the annualized rates as well
-    """
-    if r_0 is None: r_0 = b 
-    r_0 = ann_to_inst(r_0)
-    dt = 1/steps_per_year
-    num_steps = int(n_years*steps_per_year) + 1 # because n_years might be a float
-    
-    shock = np.random.normal(0, scale=np.sqrt(dt), size=(num_steps, n_scenarios)) #generate random numbers
-    rates = np.empty_like(shock)
-    rates[0] = r_0
-    for step in range(1, num_steps):
-        r_t = rates[step-1]
-        d_r_t = a*(b-r_t)*dt + sigma*np.sqrt(r_t)*shock[step] # check the below formula
-        rates[step] = abs(r_t + d_r_t) # just in case of roundoff errors going negative
-        
-    return pd.DataFrame(data=inst_to_ann(rates), index=range(num_steps))
-
-
-
-import math
 def cir(n_years = 10, n_scenarios=1, a=0.05, b=0.03, sigma=0.05, steps_per_year=12, r_0=None):
     """
     Generate random interest rate evolution over time using the CIR model
@@ -603,13 +585,13 @@ def bond_price(maturity, principal=100, coupon_rate=0.03, coupons_per_year=12, d
         return pv(cash_flows, discount_rate/coupons_per_year)
 
 
-def macaulay_duration(flows, discount_rate): 
+def macaulay_duration(flows, discount_rate):
     """
-    computes the Macaulay Duration of a sequence of cashflows
+    Computes the Macaulay Duration of a sequence of cash flows, given a per-period discount rate
     """
-    discount_flows=discount(flows.index, discount_rate)*flows
-    weights=discount_flows/discount_flows.sum()
-    return np.average(flows.index, weights=weights)
+    discounted_flows = discount(flows.index, discount_rate)*pd.DataFrame(flows)
+    weights = discounted_flows/discounted_flows.sum()
+    return np.average(flows.index, weights=weights.iloc[:,0])
 
 def match_durations(cf_t, cf_s, cf_l, discount_rate):
     """

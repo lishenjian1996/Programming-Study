@@ -426,20 +426,18 @@ def run_cppi(risky_r, safe_r=None, m=3, start=1000, floor=0.8, riskfree_rate=0.0
         floorval_history.iloc[step] = floor_value
         peak_history.iloc[step] = peak
     risky_wealth = start*(1+risky_r).cumprod()
-    backtest_result = {
-        "Wealth": account_history,
-        "Risky Wealth": risky_wealth, 
-        "Risk Budget": cushion_history,
-        "Risky Allocation": risky_w_history,
-        "m": m,
-        "start": start,
-        "floor": floor,
-        "risky_r":risky_r,
-        "safe_r": safe_r,
-        "drawdown": drawdown,
-        "peak": peak_history,
-        "floor": floorval_history
-    }
+    backtest_result = {"Wealth": account_history,
+                       "Risky Wealth": risky_wealth, 
+                       "Risk Budget": cushion_history,
+                       "Risky Allocation": risky_w_history,
+                       "m": m,
+                       "start": start,
+                       "floor": floor,
+                       "risky_r":risky_r,
+                       "safe_r": safe_r,
+                       "drawdown": drawdown,
+                       "peak": peak_history,
+                       "floor": floorval_history}
     return backtest_result
 
 
