@@ -16,6 +16,16 @@ def load_data():
     y = np.load("data/y.npy")
     return X, y
 
+def load_weights():
+    w1 = np.load("data/w1.npy")
+    b1 = np.load("data/b1.npy")
+    w2 = np.load("data/w2.npy")
+    b2 = np.load("data/b2.npy")
+    return w1, b1, w2, b2
+
+def sigmoid(x):
+    return 1. / (1. + np.exp(-x))
+
 def plt_act_trio():
     X = np.linspace(-5,5,100)
     fig,ax = plt.subplots(1,3, figsize=(6,2))
