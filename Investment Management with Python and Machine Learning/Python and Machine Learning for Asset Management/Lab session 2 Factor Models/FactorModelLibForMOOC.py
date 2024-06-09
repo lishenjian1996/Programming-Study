@@ -3,7 +3,7 @@
 
 import numpy as np #for numerical array data
 import pandas as pd #for tabular data
-from scipy.optimize import minimize
+#from scipy.optimize import minimize
 import matplotlib.pyplot as plt #for plotting purposes
 import time
 
@@ -12,7 +12,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import ElasticNet
-from sklearn.model_selection import KFold
+#from sklearn.model_selection import KFold
 from sklearn.model_selection import GridSearchCV
 
 #Plotting Functions
@@ -141,8 +141,8 @@ def create_dictionary_for_analysis(method, methodDict=None):
         options = create_options_cv_elastic_net()
     elif(method == 'BestSubset'):
         options = create_options_best_subset()
-    elif(method == 'RelaxedLasso'):
-        options = create_options_relaxed_lasso()
+    #elif(method == 'RelaxedLasso'):
+    #    options = create_options_relaxed_lasso()
     else:
         print('Bad Method Specification for Train')
         return
