@@ -25,10 +25,10 @@ isDemo = False
 dataPathUser = 'Data/Data2016.csv'
 
 #factorNameUser: List, defines the factors
-factorNameUser = ['World Equities', '10-year US Treasuries', 'High Yield', 'Inflation Protection', 'Currency Protection']
+factorNameUser = ['World Equities', 'Commodity', 'High Yield', 'Inflation Protection', 'Currency Protection']
 
 #assetNameUser: List, defines the asset to be used
-assetNameUser = 'Commodity'
+assetNameUser = '10-year US Treasuries'
 
 #dateName: string, date column
 dateNameUser = 'Date'
