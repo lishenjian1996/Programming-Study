@@ -14,3 +14,8 @@
 #libPaths()
 #install.packages("jsonlite")
 #install.packages("readr")
+#install.packages("data.table")
+#install.packages("zoo")
+#install.packages("pdftools")
+#install.packages("tesseract")
+#install.packages("IRkernel")
